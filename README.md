@@ -23,11 +23,19 @@ Gemini 3 flash model.
 ## Installation & Setup
 
 1. **Build & Install**:
+
+   - **Debug Build (with logging)**: Use this if you need to find keycodes (logs all key presses to Logcat).
+     ```bash
+     ./gradlew assembleDebug
+     adb install -r app/build/outputs/apk/debug/app-debug.apk
+     ```
    
-   ```bash
-   ./gradlew assembleDebug
-   adb install -r app/build/outputs/apk/debug/app-debug.apk
-   ```
+   - **Production Build (privacy focused)**: No key logging.
+     ```bash
+     ./gradlew assembleRelease
+     # Note: You may need to sign the release APK before installing
+     adb install -r app/build/outputs/apk/release/app-release-unsigned.apk
+     ```
 
 2. **Enable Accessibility Service (ADB Bypass)**:
 

@@ -88,6 +88,9 @@ class MainActivity : FragmentActivity() {
 
         ButtonMapperService.scanListener = { keyCode ->
             if (keyCode == KeyEvent.KEYCODE_BACK || keyCode == KeyEvent.KEYCODE_HOME) {
+                if (BuildConfig.DEBUG) {
+                    Log.d("MainActivity", "Ignoring system key: $keyCode")
+                }
                 // Ignore system keys to prevent lockout
 
             } else {

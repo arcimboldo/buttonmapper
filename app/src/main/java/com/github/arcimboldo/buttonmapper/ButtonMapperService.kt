@@ -27,7 +27,9 @@ class ButtonMapperService : AccessibilityService() {
 
         // We only care about button down events for triggering actions
         if (action == KeyEvent.ACTION_DOWN) {
-
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG, "Key Pressed: $keyCode")
+            }
 
             // Check if we are in scan mode
             scanListener?.let {
@@ -40,6 +42,9 @@ class ButtonMapperService : AccessibilityService() {
             // Check for mapping
             val mappedPackage = mappingManager.getMapping(keyCode)
             if (mappedPackage != null) {
+                if (BuildConfig.DEBUG) {
+                    Log.d(TAG, "Mapping found for $keyCode -> $mappedPackage")
+                }
 
                 launchApp(mappedPackage)
                 return true // Consume event
