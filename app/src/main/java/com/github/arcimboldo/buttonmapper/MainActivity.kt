@@ -11,6 +11,8 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import android.app.AlertDialog
+import android.view.KeyEvent
+import android.util.Log
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -54,6 +56,11 @@ class MainActivity : FragmentActivity() {
         return enabledServices.contains(expectedComponentName.flattenToString())
     }
 
+    override fun onResume() {
+        super.onResume()
+        refreshList()
+    }
+
     private fun showAccessibilityPrompt() {
         AlertDialog.Builder(this)
             .setTitle("Accessibility Service Required")
@@ -80,12 +87,17 @@ class MainActivity : FragmentActivity() {
             .create()
 
         ButtonMapperService.scanListener = { keyCode ->
-            runOnUiThread {
-                pendingKeyCode = keyCode
-                ButtonMapperService.scanListener = null
-                dialog.dismiss()
-                val intent = Intent(this, AppSelectorActivity::class.java)
-                startActivityForResult(intent, 100)
+            if (keyCode == KeyEvent.KEYCODE_BACK || keyCode == KeyEvent.KEYCODE_HOME) {
+                // Ignore system keys to prevent lockout
+                Log.d("MainActivity", "Ignoring system key: $keyCode")
+            } else {
+                runOnUiThread {
+                    pendingKeyCode = keyCode
+                    ButtonMapperService.scanListener = null
+                    dialog.dismiss()
+                    val intent = Intent(this, AppSelectorActivity::class.java)
+                    startActivityForResult(intent, 100)
+                }
             }
         }
 

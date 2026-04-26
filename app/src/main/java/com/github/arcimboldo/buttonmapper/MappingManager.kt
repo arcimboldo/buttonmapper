@@ -11,6 +11,10 @@ class MappingManager(context: Context) {
     }
 
     fun getMapping(keyCode: Int): String? {
+        // Safety check: Never allow remapping of Back or Home keys
+        if (keyCode == 4 || keyCode == 3) {
+            return null
+        }
         return prefs.getString(keyCode.toString(), null)
     }
 
