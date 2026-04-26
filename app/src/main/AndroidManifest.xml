@@ -3,7 +3,7 @@
     package="com.github.arcimboldo.buttonmapper">
 
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
-    <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" />
+
 
     <uses-feature
         android:name="android.software.leanback"
