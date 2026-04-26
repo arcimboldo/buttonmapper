@@ -37,11 +37,21 @@ class MainActivity : FragmentActivity() {
         val recyclerView = findViewById<RecyclerView>(R.id.mapping_list)
         recyclerView.layoutManager = LinearLayoutManager(this)
         adapter = MappingAdapter(mappingManager.getAllMappings().toList()) { compositeKey ->
-            val parts = compositeKey.split(":")
-            if (parts.size == 2) {
-                mappingManager.removeMapping(parts[0].toInt(), parts[1].toInt())
-                refreshList()
+            if (BuildConfig.DEBUG) {
+                Log.d("MainActivity", "Attempting to delete key: $compositeKey")
             }
+            AlertDialog.Builder(this)
+                .setTitle("Delete Mapping")
+                .setMessage("Are you sure you want to remove this mapping?")
+                .setPositiveButton("Delete") { _, _ ->
+                    if (BuildConfig.DEBUG) {
+                        Log.d("MainActivity", "Confirmed deletion of: $compositeKey")
+                    }
+                    mappingManager.removeMapping(compositeKey)
+                    refreshList()
+                }
+                .setNegativeButton("Cancel", null)
+                .show()
         }
         recyclerView.adapter = adapter
         refreshList() // Check for empty state on start
@@ -165,6 +175,7 @@ class MainActivity : FragmentActivity() {
             }
             holder.appLabel.text = appLabel
             
+            holder.itemView.setOnClickListener { onDelete(key) }
             holder.btnDelete.setOnClickListener { onDelete(key) }
             holder.itemView.isFocusable = true
         }

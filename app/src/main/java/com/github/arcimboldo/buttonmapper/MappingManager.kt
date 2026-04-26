@@ -19,7 +19,11 @@ class MappingManager(context: Context) {
     }
 
     fun removeMapping(keyCode: Int, scanCode: Int) {
-        prefs.edit().remove("$keyCode:$scanCode").apply()
+        prefs.edit().remove("$keyCode:$scanCode").commit()
+    }
+
+    fun removeMapping(key: String) {
+        prefs.edit().remove(key).commit()
     }
 
     fun getAllMappings(): Map<String, String> {
