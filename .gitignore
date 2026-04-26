@@ -1,0 +1,30 @@
+# Build and Generated Files
+build/
+.gradle/
+app/build/
+*.pyc
+
+# IDE Settings
+.idea/
+*.iml
+.vscode/
+
+# Local configuration (SDK paths, etc.)
+local.properties
+
+# Log files
+*.log
+
+# Keystores & Signing
+*.keystore
+*.jks
+!debug.keystore
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Keep the Gradle wrapper!
+!gradle/wrapper/gradle-wrapper.jar
+!gradlew
+!gradlew.bat

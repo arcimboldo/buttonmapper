@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">ButtonMapper</string>
+    <string name="accessibility_service_description">Allows remapping remote control buttons to custom actions.</string>
+    <string name="add_mapping">Add Mapping</string>
+    <string name="scan_button_instruction">Press the button on your remote you want to remap...</string>
+    <string name="select_app">Select App</string>
+    <string name="mapping_saved">Mapping saved!</string>
+</resources>
