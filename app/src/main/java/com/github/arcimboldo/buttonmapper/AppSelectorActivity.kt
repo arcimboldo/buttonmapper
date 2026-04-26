@@ -26,8 +26,9 @@ class AppSelectorActivity : FragmentActivity() {
         recyclerView.layoutManager = LinearLayoutManager(this)
 
         val keyCode = intent.getIntExtra("key_code", -1)
+        val scanCode = intent.getIntExtra("scan_code", -1)
         if (keyCode != -1) {
-            findViewById<TextView>(R.id.keycode_label).text = "Mapping key code: $keyCode"
+            findViewById<TextView>(R.id.keycode_label).text = "Mapping key code: $keyCode (Scan: $scanCode)"
         }
 
         val apps = getInstalledApps()

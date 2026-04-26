@@ -22,6 +22,7 @@ class MainActivity : FragmentActivity() {
     private lateinit var mappingManager: MappingManager
     private lateinit var adapter: MappingAdapter
     private var pendingKeyCode: Int? = null
+    private var pendingScanCode: Int? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,9 +36,12 @@ class MainActivity : FragmentActivity() {
 
         val recyclerView = findViewById<RecyclerView>(R.id.mapping_list)
         recyclerView.layoutManager = LinearLayoutManager(this)
-        adapter = MappingAdapter(mappingManager.getAllMappings().toList()) { keyCode ->
-            mappingManager.removeMapping(keyCode)
-            refreshList()
+        adapter = MappingAdapter(mappingManager.getAllMappings().toList()) { compositeKey ->
+            val parts = compositeKey.split(":")
+            if (parts.size == 2) {
+                mappingManager.removeMapping(parts[0].toInt(), parts[1].toInt())
+                refreshList()
+            }
         }
         recyclerView.adapter = adapter
         refreshList() // Check for empty state on start
@@ -86,7 +90,7 @@ class MainActivity : FragmentActivity() {
             .setNegativeButton("Cancel") { _, _ -> ButtonMapperService.scanListener = null }
             .create()
 
-        ButtonMapperService.scanListener = { keyCode ->
+        ButtonMapperService.scanListener = { keyCode, scanCode ->
             if (keyCode == KeyEvent.KEYCODE_BACK || keyCode == KeyEvent.KEYCODE_HOME) {
                 if (BuildConfig.DEBUG) {
                     Log.d("MainActivity", "Ignoring system key: $keyCode")
@@ -96,10 +100,12 @@ class MainActivity : FragmentActivity() {
             } else {
                 runOnUiThread {
                     pendingKeyCode = keyCode
+                    pendingScanCode = scanCode
                     ButtonMapperService.scanListener = null
                     dialog.dismiss()
                     val intent = Intent(this, AppSelectorActivity::class.java)
                     intent.putExtra("key_code", keyCode)
+                    intent.putExtra("scan_code", scanCode)
                     startActivityForResult(intent, 100)
                 }
             }
@@ -113,8 +119,9 @@ class MainActivity : FragmentActivity() {
         if (requestCode == 100 && resultCode == Activity.RESULT_OK) {
             val packageName = data?.getStringExtra("package_name")
             val keyCode = pendingKeyCode
-            if (packageName != null && keyCode != null) {
-                mappingManager.saveMapping(keyCode, packageName)
+            val scanCode = pendingScanCode
+            if (packageName != null && keyCode != null && scanCode != null) {
+                mappingManager.saveMapping(keyCode, scanCode, packageName)
                 Toast.makeText(this, R.string.mapping_saved, Toast.LENGTH_SHORT).show()
                 refreshList()
             }
@@ -122,8 +129,8 @@ class MainActivity : FragmentActivity() {
     }
 
     inner class MappingAdapter(
-        private var mappings: List<Pair<Int, String>>,
-        private val onDelete: (Int) -> Unit
+        private var mappings: List<Pair<String, String>>,
+        private val onDelete: (String) -> Unit
     ) : RecyclerView.Adapter<MappingAdapter.ViewHolder>() {
 
         inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -132,7 +139,7 @@ class MainActivity : FragmentActivity() {
             val btnDelete: Button = view.findViewById(R.id.btn_delete)
         }
 
-        fun updateMappings(newMappings: List<Pair<Int, String>>) {
+        fun updateMappings(newMappings: List<Pair<String, String>>) {
             mappings = newMappings
             notifyDataSetChanged()
         }
@@ -143,8 +150,12 @@ class MainActivity : FragmentActivity() {
         }
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-            val (keyCode, pkg) = mappings[position]
-            holder.keyLabel.text = "Key Code: $keyCode"
+            val (key, pkg) = mappings[position]
+            val parts = key.split(":")
+            val keyCode = parts.getOrNull(0) ?: "Unknown"
+            val scanCode = parts.getOrNull(1) ?: "Unknown"
+            
+            holder.keyLabel.text = "Key: $keyCode (Scan: $scanCode)"
             
             val appLabel = try {
                 val info = packageManager.getApplicationInfo(pkg, 0)
@@ -154,7 +165,7 @@ class MainActivity : FragmentActivity() {
             }
             holder.appLabel.text = appLabel
             
-            holder.btnDelete.setOnClickListener { onDelete(keyCode) }
+            holder.btnDelete.setOnClickListener { onDelete(key) }
             holder.itemView.isFocusable = true
         }
 
