@@ -99,6 +99,7 @@ class MainActivity : FragmentActivity() {
                     ButtonMapperService.scanListener = null
                     dialog.dismiss()
                     val intent = Intent(this, AppSelectorActivity::class.java)
+                    intent.putExtra("key_code", keyCode)
                     startActivityForResult(intent, 100)
                 }
             }
