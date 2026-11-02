@@ -101,22 +101,37 @@ class MainActivity : FragmentActivity() {
             .create()
 
         ButtonMapperService.scanListener = { keyCode, scanCode ->
-            if (keyCode == KeyEvent.KEYCODE_BACK || keyCode == KeyEvent.KEYCODE_HOME) {
-                if (BuildConfig.DEBUG) {
-                    Log.d("MainActivity", "Ignoring system key: $keyCode")
+            when {
+                /** "enter" here means click on "cancel" button */
+                isEnterKey(keyCode) || keyCode == KeyEvent.KEYCODE_BACK -> {
+                    runOnUiThread {
+                        ButtonMapperService.scanListener = null
+                        dialog.dismiss()
+                    }
                 }
-                // Ignore system keys to prevent lockout
-
-            } else {
-                runOnUiThread {
-                    pendingKeyCode = keyCode
-                    pendingScanCode = scanCode
-                    ButtonMapperService.scanListener = null
-                    dialog.dismiss()
-                    val intent = Intent(this, AppSelectorActivity::class.java)
-                    intent.putExtra("key_code", keyCode)
-                    intent.putExtra("scan_code", scanCode)
-                    startActivityForResult(intent, 100)
+                isProtectedKey(keyCode) -> {
+                    if (BuildConfig.DEBUG) {
+                        Log.d("MainActivity", "Ignoring system key: $keyCode")
+                    }
+                    runOnUiThread {
+                        Toast.makeText(
+                            this,
+                            "This key is protected to prevent lockout.",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+                else -> {
+                    runOnUiThread {
+                        pendingKeyCode = keyCode
+                        pendingScanCode = scanCode
+                        ButtonMapperService.scanListener = null
+                        dialog.dismiss()
+                        val intent = Intent(this, AppSelectorActivity::class.java)
+                        intent.putExtra("key_code", keyCode)
+                        intent.putExtra("scan_code", scanCode)
+                        startActivityForResult(intent, 100)
+                    }
                 }
             }
         }

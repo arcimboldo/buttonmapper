@@ -57,8 +57,9 @@ Gemini 3 flash model.
 ## Usage
 
 - Open the app and click **Add Mapping**.
-- Press any button on your remote (e.g., Prime Video, Netflix). Back
-  and Home should be disabled, but who knows?
+- Press any button on your remote (e.g., Prime Video, Netflix).
+- Back, Enter/OK, and NumPad Enter cancel scanning. Home and D-pad
+  directions are ignored so navigation keys cannot be remapped.
 - Select the application you want to launch instead.
 
 ## License
